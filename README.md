@@ -57,6 +57,27 @@ A Telegram bot that fetches **real-time and historical mark prices** for USDT pe
    python3 bot.py
    ```
 
+## Deploy on Railway
+
+The bot runs as a **worker** (no HTTP server). To deploy:
+
+1. **Install Railway CLI** (optional): [railway.app](https://railway.app) → use the dashboard or `npm i -g @railway/cli` and `railway login`.
+
+2. **Create a new project** on [Railway](https://railway.app):
+   - **New Project** → **Deploy from GitHub repo** (connect your GitHub and select this repo), or **Empty Project** and then **Deploy from GitHub**.
+   - Railway will detect Python from `requirements.txt` and use the **Procfile** to run `python bot.py` as a worker.
+
+3. **Set environment variable** in the Railway project:
+   - Open your service → **Variables** → **Add Variable**
+   - Name: `TELEGRAM_BOT_TOKEN`
+   - Value: your Telegram bot token from [@BotFather](https://t.me/botfather)
+
+4. **Deploy**: Pushes to your connected branch will auto-deploy. Or trigger a deploy from the dashboard.
+
+5. **Process type**: Ensure the service is run as a **worker** (Railway uses the `worker` line from the Procfile). If your plan only shows "Web", set the **Start Command** in **Settings** to `python bot.py` so it runs as the main process.
+
+Your bot will stay running and respond to `/start` and `/mark <symbol> [timestamp]` in Telegram.
+
 ## Project Structure
 
 ```
