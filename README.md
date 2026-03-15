@@ -1,13 +1,15 @@
 # Mudrex Mark Price Bot 📊
 
-A Telegram bot that fetches **real-time and historical mark prices** for USDT perpetual trading pairs.
+A Telegram bot that fetches **real-time and historical mark prices** for USDT perpetual trading pairs (Bybit linear).
 
 ## Features
 
-- 🔴 **Live Prices** - Get current mark prices instantly
-- 📅 **Historical Prices** - Query mark prices at any past timestamp
-- ⏰ **Flexible Time Formats** - Supports Unix timestamps and human-readable dates
-- 💬 **Telegram Integration** - Easy-to-use bot commands
+- 🔴 **Live prices** – Current 1‑minute mark-price candle (OHLC + volume)
+- 📅 **Historical prices** – Mark price for any past minute
+- 📊 **OHLC + volume** – Open, High, Low, Close (mark price) and trading volume for that minute
+- 🕐 **Dual time display** – Time shown in **IST** and **UTC** (Railway/server time)
+- ⏰ **Flexible time formats** – Unix timestamp or `DD/MM/YY` / `DD/MM/YY HH:MM`
+- 💬 **Telegram** – `/start` and `/mark` commands; webhook mode for Railway
 
 ## Commands
 
@@ -47,15 +49,15 @@ A Telegram bot that fetches **real-time and historical mark prices** for USDT pe
    ```bash
    cp .env.example .env
    ```
-   Edit `.env` and add your Telegram bot token:
-   ```
-   TELEGRAM_BOT_TOKEN=your_bot_token_here
-   ```
+   Edit `.env`:
+   - `TELEGRAM_BOT_TOKEN` – required (from [@BotFather](https://t.me/botfather))
+   - `WEBHOOK_BASE_URL` – optional; only for webhook mode (e.g. on Railway). Omit for local polling.
 
 4. **Run the bot**
    ```bash
    python3 bot.py
    ```
+   Without `WEBHOOK_BASE_URL` it runs in **polling** mode (fine for local). With `WEBHOOK_BASE_URL` it runs in **webhook** mode (needed on Railway).
 
 ## Deploy on Railway (webhook mode)
 
@@ -76,21 +78,32 @@ Without `WEBHOOK_BASE_URL` the bot falls back to polling (works locally; on Rail
 ## Project Structure
 
 ```
-├── bot.py                 # Main Telegram bot
-├── mark_price_client.py   # API client for fetching prices
-├── requirements.txt       # Python dependencies
-├── .env.example           # Environment template
-└── README.md              # Documentation
+├── bot.py                 # Telegram bot (polling or webhook)
+├── mark_price_client.py   # Bybit API: mark-price kline + kline for volume
+├── requirements.txt       # Python dependencies (PTB with webhooks extra)
+├── Procfile               # web: python bot.py (Railway)
+├── runtime.txt            # Python version
+├── .env.example           # TELEGRAM_BOT_TOKEN, optional WEBHOOK_BASE_URL
+└── README.md              # This file
 ```
 
 ## Example Output
 
 ```
-BTCUSDT Mark Price
-Price: 42150.50
-Time: 20/01/26 12:00:00
+BTCUSDT Mark Price (1m candle)
+Open: 97500.50
+High: 97580.20
+Low: 97490.10
+Close: 97545.30
+Volume: 1234.56
+Time (IST): 15/03/26 20:02:00
+Time (UTC / Railway): 15/03/26 14:32:00
 Type: Live
+Bybit linear mark-price.
 ```
+
+- **OHLC** from Bybit mark-price kline; **Volume** from Bybit regular kline (same minute).
+- **IST** = Indian Standard Time; **UTC** = server/Railway time.
 
 ## License
 
