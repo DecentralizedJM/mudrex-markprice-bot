@@ -120,15 +120,16 @@ if __name__ == '__main__':
         print("Error: TELEGRAM_BOT_TOKEN not found in environment variables.")
         exit(1)
 
+    # Long timeouts for Railway: outbound to api.telegram.org (bootstrap + set_webhook) can be slow
     application = (
         ApplicationBuilder()
         .token(token)
-        .connect_timeout(30.0)
-        .read_timeout(30.0)
-        .write_timeout(30.0)
-        .get_updates_connect_timeout(30.0)
-        .get_updates_read_timeout(30.0)
-        .get_updates_write_timeout(30.0)
+        .connect_timeout(90.0)
+        .read_timeout(90.0)
+        .write_timeout(90.0)
+        .get_updates_connect_timeout(90.0)
+        .get_updates_read_timeout(90.0)
+        .get_updates_write_timeout(90.0)
         .build()
     )
 
@@ -152,6 +153,7 @@ if __name__ == '__main__':
             port=port,
             url_path=url_path,
             webhook_url=webhook_url,
+            bootstrap_retries=15,
         )
     else:
         print("Bot is polling...")
