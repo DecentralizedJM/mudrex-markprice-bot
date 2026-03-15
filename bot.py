@@ -140,6 +140,8 @@ if __name__ == '__main__':
 
     webhook_base = os.getenv("WEBHOOK_BASE_URL", "").strip().rstrip("/")
     if webhook_base:
+        if not webhook_base.startswith(("http://", "https://")):
+            webhook_base = f"https://{webhook_base}"
         # Webhook mode: Telegram pushes to us. No outbound connection to Telegram needed.
         port = int(os.getenv("PORT", "8080"))
         url_path = "webhook"
