@@ -1,6 +1,7 @@
 import os
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from mark_price_client import MarkPriceClient
@@ -87,7 +88,10 @@ async def mark(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
         else:
             time_str = "Live" if not data['is_historical'] else "Historical"
-            formatted_date = datetime.fromtimestamp(data['timestamp']).strftime('%d/%m/%y %H:%M:%S')
+            ts = data['timestamp']
+            fmt = "%d/%m/%y %H:%M:%S"
+            dt_ist = datetime.fromtimestamp(ts, tz=ZoneInfo("Asia/Kolkata")).strftime(fmt)
+            dt_utc = datetime.fromtimestamp(ts, tz=timezone.utc).strftime(fmt)
 
             vol_str = f"Volume: `{data['volume']}`" if data.get('volume') is not None else "Volume: —"
             msg = (
@@ -97,7 +101,8 @@ async def mark(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"Low: `{data['low']}`\n"
                 f"Close: `{data['close']}`\n"
                 f"{vol_str}\n"
-                f"Time: `{formatted_date}`\n"
+                f"Time (IST): `{dt_ist}`\n"
+                f"Time (UTC / Railway): `{dt_utc}`\n"
                 f"Type: {time_str}\n"
                 f"_Bybit linear mark-price._"
             )
