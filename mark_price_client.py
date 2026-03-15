@@ -53,7 +53,7 @@ class MarkPriceClient:
             if not data["result"]["list"]:
                 return {"error": "No data found for this symbol/timestamp"}
 
-            # Bybit kline: [startTime, open, high, low, close, volume, turnover]
+            # Mark-price-kline: [startTime, open, high, low, close] (no volume)
             latest_kline = data["result"]["list"][0]
             kline_ts = int(latest_kline[0]) / 1000
             open_p = float(latest_kline[1])
@@ -61,6 +61,10 @@ class MarkPriceClient:
             low = float(latest_kline[3])
             close = float(latest_kline[4])
             volume = float(latest_kline[5]) if len(latest_kline) > 5 else None
+
+            # If mark-price-kline didn't return volume, get it from regular kline (same minute)
+            if volume is None:
+                volume = self._get_kline_volume(symbol, kline_ts)
 
             return {
                 "symbol": symbol.upper(),
@@ -75,6 +79,32 @@ class MarkPriceClient:
 
         except Exception as e:
             return {"error": str(e)}
+
+    def _get_kline_volume(self, symbol: str, candle_timestamp_sec: float) -> Optional[float]:
+        """Fetch trading volume for the same 1m candle from regular kline endpoint."""
+        try:
+            ts_ms = int(candle_timestamp_sec * 1000)
+            resp = requests.get(
+                f"{self.BASE_URL}/v5/market/kline",
+                params={
+                    "category": "linear",
+                    "symbol": symbol.upper(),
+                    "interval": "1",
+                    "start": ts_ms,
+                    "end": ts_ms,
+                    "limit": 1,
+                },
+                timeout=10,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            if data.get("retCode") != 0 or not data.get("result", {}).get("list"):
+                return None
+            # Kline: [startTime, open, high, low, close, volume, turnover]
+            row = data["result"]["list"][0]
+            return float(row[5]) if len(row) > 5 else None
+        except Exception:
+            return None
 
 if __name__ == "__main__":
     # Quick test
