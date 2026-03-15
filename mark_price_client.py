@@ -20,8 +20,8 @@ class MarkPriceClient:
             timestamp: Optional timestamp in seconds (Unix epoch).
             
         Returns:
-            A dictionary containing price and timestamp information.
-            Example: {'price': 12345.67, 'timestamp': 1670000000, 'symbol': 'BTCUSDT'}
+            A dictionary with open, high, low, close (1m candle), timestamp, symbol.
+            Example: {'symbol': 'BTCUSDT', 'open': 1.2, 'high': 1.3, 'low': 1.1, 'close': 1.25, 'timestamp': 1670000000}
         """
         endpoint = "/v5/market/mark-price-kline"
         
@@ -53,15 +53,22 @@ class MarkPriceClient:
             if not data["result"]["list"]:
                 return {"error": "No data found for this symbol/timestamp"}
 
-            # Kline format: [startTime, open, high, low, close]
-            # We use 'close' as the mark price for that minute.
+            # Bybit kline: [startTime, open, high, low, close, volume, turnover]
             latest_kline = data["result"]["list"][0]
-            price = float(latest_kline[4])
             kline_ts = int(latest_kline[0]) / 1000
+            open_p = float(latest_kline[1])
+            high = float(latest_kline[2])
+            low = float(latest_kline[3])
+            close = float(latest_kline[4])
+            volume = float(latest_kline[5]) if len(latest_kline) > 5 else None
 
             return {
                 "symbol": symbol.upper(),
-                "price": price,
+                "open": open_p,
+                "high": high,
+                "low": low,
+                "close": close,
+                "volume": volume,
                 "timestamp": kline_ts,
                 "is_historical": timestamp is not None
             }

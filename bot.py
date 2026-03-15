@@ -87,14 +87,19 @@ async def mark(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
         else:
             time_str = "Live" if not data['is_historical'] else "Historical"
-            # Format timestamp to DD/MM/YY
             formatted_date = datetime.fromtimestamp(data['timestamp']).strftime('%d/%m/%y %H:%M:%S')
-            
+
+            vol_str = f"Volume: `{data['volume']}`" if data.get('volume') is not None else "Volume: —"
             msg = (
-                f"*{data['symbol']} Mark Price*\n"
-                f"Price: `{data['price']}`\n"
+                f"*{data['symbol']} Mark Price* _(1m candle)_\n"
+                f"Open: `{data['open']}`\n"
+                f"High: `{data['high']}`\n"
+                f"Low: `{data['low']}`\n"
+                f"Close: `{data['close']}`\n"
+                f"{vol_str}\n"
                 f"Time: `{formatted_date}`\n"
-                f"Type: {time_str}"
+                f"Type: {time_str}\n"
+                f"_Bybit linear mark-price._"
             )
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
