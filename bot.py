@@ -120,7 +120,6 @@ if __name__ == '__main__':
         print("Error: TELEGRAM_BOT_TOKEN not found in environment variables.")
         exit(1)
 
-    # Longer timeouts for cloud (e.g. Railway) where latency to Telegram can be higher
     application = (
         ApplicationBuilder()
         .token(token)
@@ -132,12 +131,26 @@ if __name__ == '__main__':
         .get_updates_write_timeout(30.0)
         .build()
     )
-    
+
     start_handler = CommandHandler('start', start)
     mark_handler = CommandHandler('mark', mark)
-    
+
     application.add_handler(start_handler)
     application.add_handler(mark_handler)
-    
-    print("Bot is polling...")
-    application.run_polling(bootstrap_retries=5)
+
+    webhook_base = os.getenv("WEBHOOK_BASE_URL", "").strip().rstrip("/")
+    if webhook_base:
+        # Webhook mode: Telegram pushes to us. No outbound connection to Telegram needed.
+        port = int(os.getenv("PORT", "8080"))
+        url_path = "webhook"
+        webhook_url = f"{webhook_base}/{url_path}"
+        print(f"Starting webhook: listen 0.0.0.0:{port}, url={webhook_url}")
+        application.run_webhook(
+            listen="0.0.0.0",
+            port=port,
+            url_path=url_path,
+            webhook_url=webhook_url,
+        )
+    else:
+        print("Bot is polling...")
+        application.run_polling(bootstrap_retries=5)

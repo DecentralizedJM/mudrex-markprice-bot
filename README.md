@@ -57,26 +57,21 @@ A Telegram bot that fetches **real-time and historical mark prices** for USDT pe
    python3 bot.py
    ```
 
-## Deploy on Railway
+## Deploy on Railway (webhook mode)
 
-The bot runs as a **worker** (no HTTP server). To deploy:
+The bot uses **webhook mode** on Railway so Telegram pushes updates to your app (no outbound connection to Telegram = no timeouts).
 
-1. **Install Railway CLI** (optional): [railway.app](https://railway.app) → use the dashboard or `npm i -g @railway/cli` and `railway login`.
+1. **Create a project** on [Railway](https://railway.app): **New Project** → **Deploy from GitHub repo** (select this repo). Railway will use the Procfile and run the app as a **web** service.
 
-2. **Create a new project** on [Railway](https://railway.app):
-   - **New Project** → **Deploy from GitHub repo** (connect your GitHub and select this repo), or **Empty Project** and then **Deploy from GitHub**.
-   - Railway will detect Python from `requirements.txt` and use the **Procfile** to run `python bot.py` as a worker.
+2. **Get your public URL**: In the Railway dashboard, open your service → **Settings** → **Networking** → **Generate Domain** (or use the default). Copy the URL (e.g. `https://mudrex-markprice-bot-production.up.railway.app`).
 
-3. **Set environment variable** in the Railway project:
-   - Open your service → **Variables** → **Add Variable**
-   - Name: `TELEGRAM_BOT_TOKEN`
-   - Value: your Telegram bot token from [@BotFather](https://t.me/botfather)
+3. **Set environment variables** (service → **Variables**):
+   - `TELEGRAM_BOT_TOKEN` = your bot token from [@BotFather](https://t.me/botfather)
+   - `WEBHOOK_BASE_URL` = your Railway public URL from step 2 (e.g. `https://your-app.up.railway.app`) — **no trailing slash**
 
-4. **Deploy**: Pushes to your connected branch will auto-deploy. Or trigger a deploy from the dashboard.
+4. **Deploy**: Push to your branch or trigger a deploy. The bot will listen on `PORT`, register the webhook with Telegram, and receive updates at `/webhook`.
 
-5. **Process type**: Ensure the service is run as a **worker** (Railway uses the `worker` line from the Procfile). If your plan only shows "Web", set the **Start Command** in **Settings** to `python bot.py` so it runs as the main process.
-
-Your bot will stay running and respond to `/start` and `/mark <symbol> [timestamp]` in Telegram.
+Without `WEBHOOK_BASE_URL` the bot falls back to polling (works locally; on Railway polling often times out).
 
 ## Project Structure
 
