@@ -7,7 +7,7 @@ A Telegram bot that fetches **real-time and historical mark prices** for USDT pe
 - 🔴 **Live prices** – Current 1‑minute mark-price candle (OHLC + volume)
 - 📅 **Historical prices** – Mark price for any past minute
 - 📊 **OHLC + volume** – Open, High, Low, Close (mark price) and trading volume for that minute
-- 🕐 **Dual time display** – Time shown in **IST** and **UTC** (Railway/server time)
+- 🕐 **Dual time display** – Time shown in **IST** and **UTC**
 - ⏰ **Flexible time formats** – Unix timestamp or `DD/MM/YY` / `DD/MM/YY HH:MM`
 - 💬 **Telegram** – `/start` and `/mark` commands; webhook mode for Railway
 
@@ -95,15 +95,15 @@ Open: 97500.50
 High: 97580.20
 Low: 97490.10
 Close: 97545.30
-Volume: 1234.56
+Volume (BTC): 1234.56
 Time (IST): 15/03/26 20:02:00
-Time (UTC / Railway): 15/03/26 14:32:00
+Time (UTC): 15/03/26 14:32:00
 Type: Live
 Bybit linear mark-price.
 ```
 
-- **OHLC** from Bybit mark-price kline; **Volume** from Bybit regular kline (same minute).
-- **IST** = Indian Standard Time; **UTC** = server/Railway time.
+- **OHLC** from Bybit mark-price kline; **Volume** from Bybit regular kline (same minute). Volume is in **base asset** (e.g. NAORI for NAORISUSDT, BTC for BTCUSDT).
+- **IST** = Indian Standard Time; **UTC** = Coordinated Universal Time.
 
 ## License
 

@@ -93,7 +93,8 @@ async def mark(update: Update, context: ContextTypes.DEFAULT_TYPE):
             dt_ist = datetime.fromtimestamp(ts, tz=ZoneInfo("Asia/Kolkata")).strftime(fmt)
             dt_utc = datetime.fromtimestamp(ts, tz=timezone.utc).strftime(fmt)
 
-            vol_str = f"Volume: `{data['volume']}`" if data.get('volume') is not None else "Volume: —"
+            base_asset = data["symbol"].replace("USDT", "") if data["symbol"].endswith("USDT") else "base"
+            vol_str = f"Volume ({base_asset}): `{data['volume']}`" if data.get('volume') is not None else "Volume: —"
             msg = (
                 f"*{data['symbol']} Mark Price* _(1m candle)_\n"
                 f"Open: `{data['open']}`\n"
@@ -102,7 +103,7 @@ async def mark(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"Close: `{data['close']}`\n"
                 f"{vol_str}\n"
                 f"Time (IST): `{dt_ist}`\n"
-                f"Time (UTC / Railway): `{dt_utc}`\n"
+                f"Time (UTC): `{dt_utc}`\n"
                 f"Type: {time_str}\n"
                 f"_Bybit linear mark-price._"
             )
