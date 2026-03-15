@@ -114,8 +114,19 @@ if __name__ == '__main__':
     if not token:
         print("Error: TELEGRAM_BOT_TOKEN not found in environment variables.")
         exit(1)
-        
-    application = ApplicationBuilder().token(token).build()
+
+    # Longer timeouts for cloud (e.g. Railway) where latency to Telegram can be higher
+    application = (
+        ApplicationBuilder()
+        .token(token)
+        .connect_timeout(30.0)
+        .read_timeout(30.0)
+        .write_timeout(30.0)
+        .get_updates_connect_timeout(30.0)
+        .get_updates_read_timeout(30.0)
+        .get_updates_write_timeout(30.0)
+        .build()
+    )
     
     start_handler = CommandHandler('start', start)
     mark_handler = CommandHandler('mark', mark)
@@ -124,4 +135,4 @@ if __name__ == '__main__':
     application.add_handler(mark_handler)
     
     print("Bot is polling...")
-    application.run_polling()
+    application.run_polling(bootstrap_retries=5)
